@@ -32,6 +32,7 @@ function twfy_settings(){
 	
 	// The form has been submitted, so do the dirty work
 	if ($_POST['twfy_hidden'] == "Y"){
+		$twfy_api_key = trim(htmlentities($_POST['twfy_api_key']));
 		// Log the ID number of the MP
 		$twfy_person_id = trim(htmlentities($_POST['twfy_person_id']));
 		$twfy_title = trim($_POST['twfy_title']);
@@ -40,6 +41,7 @@ function twfy_settings(){
 		$twfy_limit = trim(htmlentities($_POST['twfy_limit']));
 		$twfy_link = trim(htmlentities($_POST['twfy_link']));
         $twfy_options = array(
+     	  	'api_key' => $twfy_api_key,
             'person_id' => $twfy_person_id,
             'title' => $twfy_title,
             'desc' => $twfy_desc,
@@ -52,16 +54,26 @@ function twfy_settings(){
 		echo '<div class="updated"><p><strong>'. __('Options saved.' ) .'</strong></p></div>';
 	}
 
-	$api_key = 'AMznwDBcpK3gCLwTTMC9PYHJ';
-	$MPs = getMPsList($api_key);	
+	
 	$twfy_options = get_option('twfy_recent_activity_widget');
 	?>
 	<div class="wrap">
 		<h2><?php _e('TheyWorkForYou Settings'); ?></h2>
 		<form name="twfy_form" method="post" action="<?php echo str_replace( '%7E', '~', $_SERVER['REQUEST_URI']); ?>">  
-			<input type="hidden" name="twfy_hidden" value="Y">  
-			<h3><?php _e('Choose your MP'); ?></h3>
-			<p>
+			<input type="hidden" name="twfy_hidden" value="Y">
+			
+           	<p>To use this plugin, you will need to obtain an <a href="http://www.theyworkforyou.com/api/">API key</a> from TheyWorkForYou.</p>
+			<label for="twfy_api_key">TheyWorkForYou API Key: </label>
+           	<input type="text" id="twfy_title" size="30" name="twfy_api_key" value="<?php echo stripslashes($twfy_options['api_key']);?>" />
+           	
+			<?php 
+
+			// Hide configurations options until an api key is provided
+			if ($twfy_options['api_key'] != FALSE) {
+				$MPs = getMPsList($twfy_options['api_key']);							
+				?>						
+				<h3><?php _e('Choose your MP'); ?></h3>
+				<p>
 				<select name="twfy_person_id" id="twfy_person_id">
 					<?php
 						foreach ($MPs as $MP_id => $MP_name){
@@ -73,34 +85,38 @@ function twfy_settings(){
 						}
 					?>
 				</select>
-			</p>
-			
-            <fieldset>
-                <h3>Recent Activity Widget - Options</h3>
-                <p>
-                    <label for="twfy_title">Widget title: </label>
-                    <input type="text" id="twfy_title" name="twfy_title" value="<?php echo stripslashes($twfy_options['title']);?>" />
-                </p>
-                <p>
-                    Show description?<br/>
-                    <label for="twfy_desc_yes"><input type="radio" id="twfy_desc_yes" name="twfy_desc" value="1" <?php if ($twfy_options['desc']==1){echo 'checked="checked" ';} ?>/> Yes</label><br/>
-                    <label for="twfy_desc_no"><input type="radio" id="twfy_desc_no" name="twfy_desc" value="0" <?php if ($twfy_options['desc']==0){echo 'checked="checked" ';} ?>/> No</label>
-                </p>
-                <p>
-                    Show date?<br/>
-                    <label for="twfy_date_yes"><input type="radio" id="twfy_date_yes" name="twfy_date" value="1" <?php if ($twfy_options['date']==1){echo 'checked="checked" ';} ?>/> Yes</label><br/>
-                    <label for="twfy_date_no"><input type="radio" id="twfy_date_no" name="twfy_date" value="0" <?php if ($twfy_options['date']==0){echo 'checked="checked" ';} ?>/> No</label>
-                </p>
-                <p>
-                    <label for="twfy_limit">How many items should be shown?: </label>
-                    <input type="text" id="twfy_limit" name="twfy_limit" value="<?php echo $twfy_options['limit'];?>" />
-                </p>
-                <p>
-                    Show link to MP on TheyWorkForYou.com?<br/>
-                    <label for="twfy_link_yes"><input type="radio" id="twfy_link_yes" name="twfy_link" value="1" <?php if ($twfy_options['link']==1){echo 'checked="checked" ';} ?>/> Yes</label><br/>
-                    <label for="twfy_link_no"><input type="radio" id="twfy_link_no" name="twfy_link" value="0" <?php if ($twfy_options['link']==0){echo 'checked="checked" ';} ?>/> No</label>
-                </p>
-            </fieldset>
+				</p>
+				
+	            <fieldset>
+	                <h3>Recent Activity Widget - Options</h3>
+	                <p>
+	                    <label for="twfy_title">Widget title: </label>
+	                    <input type="text" id="twfy_title" name="twfy_title" value="<?php echo stripslashes($twfy_options['title']);?>" />
+	                </p>
+	                <p>
+	                    Show description?<br/>
+	                    <label for="twfy_desc_yes"><input type="radio" id="twfy_desc_yes" name="twfy_desc" value="1" <?php if ($twfy_options['desc']==1){echo 'checked="checked" ';} ?>/> Yes</label><br/>
+	                    <label for="twfy_desc_no"><input type="radio" id="twfy_desc_no" name="twfy_desc" value="0" <?php if ($twfy_options['desc']==0){echo 'checked="checked" ';} ?>/> No</label>
+	                </p>
+	                <p>
+	                    Show date?<br/>
+	                    <label for="twfy_date_yes"><input type="radio" id="twfy_date_yes" name="twfy_date" value="1" <?php if ($twfy_options['date']==1){echo 'checked="checked" ';} ?>/> Yes</label><br/>
+	                    <label for="twfy_date_no"><input type="radio" id="twfy_date_no" name="twfy_date" value="0" <?php if ($twfy_options['date']==0){echo 'checked="checked" ';} ?>/> No</label>
+	                </p>
+	                <p>
+	                    <label for="twfy_limit">How many items should be shown?: </label>
+	                    <input type="text" id="twfy_limit" name="twfy_limit" value="<?php echo $twfy_options['limit'];?>" />
+	                </p>
+	                <p>
+	                    Show link to MP on TheyWorkForYou.com?<br/>
+	                    <label for="twfy_link_yes"><input type="radio" id="twfy_link_yes" name="twfy_link" value="1" <?php if ($twfy_options['link']==1){echo 'checked="checked" ';} ?>/> Yes</label><br/>
+	                    <label for="twfy_link_no"><input type="radio" id="twfy_link_no" name="twfy_link" value="0" <?php if ($twfy_options['link']==0){echo 'checked="checked" ';} ?>/> No</label>
+	                </p>
+	            </fieldset>
+	       	<?php 
+			}
+	       	?>
+	       	
 			<p class="submit">  
 				<input type="submit" name="Submit" value="<?php _e('Update Options') ?>" />
 			</p>  
@@ -134,10 +150,15 @@ function twfy_recent_activity_dbwidget(){
 
 // Contents for recent activity widgets
 function twfy_recent_activity_widget_contents(){
-	$twfy_options = get_option('twfy_recent_activity_widget'); // The council we're displaying
-    
-    if ($twfy_person_id !== FALSE){ // Not if the ID isn't set.
-    	$api_key = 'AMznwDBcpK3gCLwTTMC9PYHJ';    	
+	$twfy_options = get_option('twfy_recent_activity_widget');
+	
+	if ($twfy_options['api_key'] == FALSE) {
+		echo "<p>Sorry, no API key defined. Please add you API key to the settings page.</p>";
+		return;
+	}
+	
+    if ($twfy_options['person_id'] !== FALSE){ // Not if the ID isn't set.
+    	$api_key = $twfy_options['api_key'];    	
     	$xml = getActivityXmlForPerson($twfy_options['person_id'], $api_key);
     	
         echo "<ul>\n";
@@ -161,7 +182,7 @@ function twfy_recent_activity_widget_contents(){
         }
     }
     else {
-        echo "<p>Sorry, no MP has been selected. Please select an MP from the settings page.";
+        echo "<p>Sorry, no MP has been selected. Please select an MP from the settings page.</p>";
     }
 }
 
@@ -219,7 +240,7 @@ function getPersonsActivityApiUrl($person_id, $api_key) {
 // Return API XML for a given url from a local file cache if possible;
 // make a direct call of no cached copy is available
 function getCachedApiCall($api_url) {
-	$cache_ttl_in_seconds = 10;	// Cache API calls for 10 minutes
+	$cache_ttl_in_seconds = 600;	// Cache API calls for 10 minutes
 	$cached_file_name = getCacheFileName($api_url);
 	
 	if (file_exists($cached_file_name)) { 
