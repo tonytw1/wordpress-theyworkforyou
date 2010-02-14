@@ -52,21 +52,8 @@ function twfy_settings(){
 		echo '<div class="updated"><p><strong>'. __('Options saved.' ) .'</strong></p></div>';
 	}
 	
-	// Load the councils XML for choosing the right authority
-	$xml = simplexml_load_file('http://theyworkforyou.com/api/getMPs?key=AMznwDBcpK3gCLwTTMC9PYHJ&output=xml');
-	
-	// Retrieve the currently selected council, if there is one.
+	$MPs = getMPsList();	
 	$twfy_options = get_option('twfy_recent_activity_widget');
-    
-    // re-organise MPs into an array for sorting on name
-    $MPs = array();
-    foreach ($xml->match as $MP){
-        $MPid = (string )$MP->person_id;
-        $MPname = (string )$MP->name;
-        $MPs[$MPid] = $MPname;
-    }
-    asort($MPs); // actually sort it.
-	
 	?>
 	<div class="wrap">
 		<h2><?php _e('TheyWorkForYou Settings'); ?></h2>
@@ -196,6 +183,22 @@ function twfy_init(){
     );
     add_option('twfy_recent_activity_widget', $twfy_default_options);
 }
+
+
+// Load the MPs XML and use it to generate a sorted list of MPs.
+function getMpsList() {
+	$xml = simplexml_load_file('http://theyworkforyou.com/api/getMPs?key=AMznwDBcpK3gCLwTTMC9PYHJ&output=xml');
+    // re-organise MPs into an array for sorting on name
+    $MPs = array();
+    foreach ($xml->match as $MP){
+        $MPid = (string )$MP->person_id;
+        $MPname = (string )$MP->name;
+        $MPs[$MPid] = $MPname;
+    }
+    asort($MPs); // actually sort it.
+    return $MPs;		
+}
+
 
 add_action("plugins_loaded", "twfy_init");
 add_action('admin_menu', 'twfy_actions');
