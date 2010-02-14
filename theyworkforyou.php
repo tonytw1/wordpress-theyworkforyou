@@ -136,8 +136,9 @@ function twfy_recent_activity_widget_contents(){
 	$twfy_options = get_option('twfy_recent_activity_widget'); // The council we're displaying
     
     if ($twfy_person_id !== FALSE){ // Not if the ID isn't set.
-        $xml = simplexml_load_file("http://www.theyworkforyou.com/api/getHansard?key=AMznwDBcpK3gCLwTTMC9PYHJ&output=xml&person=".$twfy_options['person_id']); // Load XML
-        
+    	    	    	
+    	$xml = getActivityXmlForPerson($twfy_options['person_id']);
+    	
         echo "<ul>\n";
         $i = 0; //counter for number of meetings
         foreach ($xml->rows->match as $match){
@@ -185,9 +186,11 @@ function twfy_init(){
 }
 
 
+
 // Load the MPs XML and use it to generate a sorted list of MPs.
 function getMpsList() {
-	$xml = simplexml_load_file('http://theyworkforyou.com/api/getMPs?key=AMznwDBcpK3gCLwTTMC9PYHJ&output=xml');
+	$mps_list_api_url = 'http://theyworkforyou.com/api/getMPs?key=AMznwDBcpK3gCLwTTMC9PYHJ&output=xml';
+	$xml = getUnCachedApiCall($mps_list_api_url);
     // re-organise MPs into an array for sorting on name
     $MPs = array();
     foreach ($xml->match as $MP){
@@ -198,6 +201,18 @@ function getMpsList() {
     asort($MPs); // actually sort it.
     return $MPs;		
 }
+
+function getActivityXmlForPerson($person_id) {
+	$activity_api_url = "http://www.theyworkforyou.com/api/getHansard?key=AMznwDBcpK3gCLwTTMC9PYHJ&output=xml&person=".$person_id;
+	return getUnCachedApiCall($activity_api_url);
+}
+
+
+function getUnCachedApiCall($api_url) {
+	$xml = simplexml_load_file($api_url); // Load XML   	
+	return $xml;	
+}
+ 
 
 
 add_action("plugins_loaded", "twfy_init");
