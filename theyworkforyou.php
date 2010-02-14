@@ -190,8 +190,7 @@ function twfy_init(){
 // Load the MPs XML and use it to generate a sorted list of MPs.
 function getMpsList() {
 	$mps_list_api_url = 'http://theyworkforyou.com/api/getMPs?key=AMznwDBcpK3gCLwTTMC9PYHJ&output=xml';
-	$xml = getUnCachedApiCall($mps_list_api_url);
-    // re-organise MPs into an array for sorting on name
+	$xml = getCachedApiCall($mps_list_api_url);    
     $MPs = array();
     foreach ($xml->match as $MP){
         $MPid = (string )$MP->person_id;
@@ -204,17 +203,37 @@ function getMpsList() {
 
 function getActivityXmlForPerson($person_id) {
 	$activity_api_url = "http://www.theyworkforyou.com/api/getHansard?key=AMznwDBcpK3gCLwTTMC9PYHJ&output=xml&person=".$person_id;
-	return getUnCachedApiCall($activity_api_url);
+	return getCachedApiCall($activity_api_url);
 }
 
 
-function getUnCachedApiCall($api_url) {
-	$xml = simplexml_load_file($api_url); // Load XML   	
-	return $xml;	
+function getCachedApiCall($api_url) {
+	$cache_tty_in_seconds = 600;
+	$cached_file_name = getCacheFileName($api_url);
+	
+	if (file_exists($cached_file_name)) { 
+		$cached_file_age = time() - filemtime($cached_file_name);
+		if ($cached_file_age < $cache_tty_in_seconds) {
+			// A recent cached copy of this call exists; use it instead of calling TWFY
+			return simplexml_load_file($cached_file_name);
+		}
+	}
+	
+	$xml = getUnCachedApiCall($api_url);
+	file_put_contents($cached_file_name, $xml->asXML());
+	return $xml;
 }
- 
+
+function getUnCachedApiCall($api_url) {	
+	return simplexml_load_file($api_url); // Load XML directly from TWFY	
+}
+
+function getCacheFileName($api_url) {
+	return $temp_file = sys_get_temp_dir().'/twft_'.md5($api_url).'.xml';	
+}
 
 
+	
 add_action("plugins_loaded", "twfy_init");
 add_action('admin_menu', 'twfy_actions');
 add_action('wp_dashboard_setup', 'twfy_add_dashboard_widgets');
