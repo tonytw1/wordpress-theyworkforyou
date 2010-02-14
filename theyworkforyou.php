@@ -51,8 +51,9 @@ function twfy_settings(){
         
 		echo '<div class="updated"><p><strong>'. __('Options saved.' ) .'</strong></p></div>';
 	}
-	
-	$MPs = getMPsList();	
+
+	$api_key = 'AMznwDBcpK3gCLwTTMC9PYHJ';
+	$MPs = getMPsList($api_key);	
 	$twfy_options = get_option('twfy_recent_activity_widget');
 	?>
 	<div class="wrap">
@@ -136,8 +137,8 @@ function twfy_recent_activity_widget_contents(){
 	$twfy_options = get_option('twfy_recent_activity_widget'); // The council we're displaying
     
     if ($twfy_person_id !== FALSE){ // Not if the ID isn't set.
-    	    	    	
-    	$xml = getActivityXmlForPerson($twfy_options['person_id']);
+    	$api_key = 'AMznwDBcpK3gCLwTTMC9PYHJ';    	
+    	$xml = getActivityXmlForPerson($twfy_options['person_id'], $api_key);
     	
         echo "<ul>\n";
         $i = 0; //counter for number of meetings
@@ -188,9 +189,8 @@ function twfy_init(){
 
 
 // Load the MPs XML and use it to generate a sorted list of MPs.
-function getMpsList() {
-	$mps_list_api_url = 'http://theyworkforyou.com/api/getMPs?key=AMznwDBcpK3gCLwTTMC9PYHJ&output=xml';
-	$xml = getCachedApiCall($mps_list_api_url);    
+function getMpsList($api_key) {
+	$xml = getCachedApiCall(getMpsListApiUrl($api_key));
     $MPs = array();
     foreach ($xml->match as $MP){
         $MPid = (string )$MP->person_id;
@@ -201,19 +201,30 @@ function getMpsList() {
     return $MPs;		
 }
 
-function getActivityXmlForPerson($person_id) {
-	$activity_api_url = "http://www.theyworkforyou.com/api/getHansard?key=AMznwDBcpK3gCLwTTMC9PYHJ&output=xml&person=".$person_id;
-	return getCachedApiCall($activity_api_url);
+// Load an XML object representing this persons activity
+function getActivityXmlForPerson($person_id, $api_key) {
+	return getCachedApiCall(getPersonsActivityApiUrl($person_id, $api_key));
 }
 
 
+function getMpsListApiUrl($api_key) {
+	return 'http://theyworkforyou.com/api/getMPs?key='.$api_key.'&output=xml';
+}
+
+function getPersonsActivityApiUrl($person_id, $api_key) {
+	return 'http://www.theyworkforyou.com/api/getHansard?key='.$api_key.'&output=xml&person='.$person_id;
+}
+
+
+// Return API XML for a given url from a local file cache if possible;
+// make a direct call of no cached copy is available
 function getCachedApiCall($api_url) {
-	$cache_tty_in_seconds = 600;
+	$cache_ttl_in_seconds = 10;	// Cache API calls for 10 minutes
 	$cached_file_name = getCacheFileName($api_url);
 	
 	if (file_exists($cached_file_name)) { 
 		$cached_file_age = time() - filemtime($cached_file_name);
-		if ($cached_file_age < $cache_tty_in_seconds) {
+		if ($cached_file_age < $cache_ttl_in_seconds) {
 			// A recent cached copy of this call exists; use it instead of calling TWFY
 			return simplexml_load_file($cached_file_name);
 		}
@@ -224,10 +235,12 @@ function getCachedApiCall($api_url) {
 	return $xml;
 }
 
+// Make a direct XML call to TWFY
 function getUnCachedApiCall($api_url) {	
 	return simplexml_load_file($api_url); // Load XML directly from TWFY	
 }
 
+// Calculate the file path to cache a given api url on under the PHP tmp path
 function getCacheFileName($api_url) {
 	return $temp_file = sys_get_temp_dir().'/twft_'.md5($api_url).'.xml';	
 }
