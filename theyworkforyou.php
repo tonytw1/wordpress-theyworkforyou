@@ -114,9 +114,17 @@ function twfy_settings(){
 	                </p>
 	            </fieldset>
 	       	<?php 
+			} else {
+	  	     	?>
+	       	  	<input type="hidden" id="twfy_title" name="twfy_title" value="<?php echo stripslashes($twfy_options['title']); ?>" />
+	       	  	<input type="hidden" id="twfy_person_id" name="twfy_person_id" value="<?php echo stripslashes($twfy_options['person_id']); ?>" />
+	   			<input type="hidden" id="twfy_desc" name="twfy_desc" value="<?php echo stripslashes($twfy_options['desc']); ?>" />
+			  	<input type="hidden" id="twfy_date" name="twfy_date" value="<?php echo stripslashes($twfy_options['date']); ?>" />
+			  	<input type="hidden" id="twfy_limit" name="twfy_limit" value="<?php echo stripslashes($twfy_options['limit']); ?>" />
+			  	<input type="hidden" id="twfy_link" name="twfy_link" value="<?php echo stripslashes($twfy_options['link']); ?>" />			  	
+	       	<?php
 			}
-	       	?>
-	       	
+			?>
 			<p class="submit">  
 				<input type="submit" name="Submit" value="<?php _e('Update Options') ?>" />
 			</p>  
