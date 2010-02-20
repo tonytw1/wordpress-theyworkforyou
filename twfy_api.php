@@ -16,6 +16,11 @@
 */
 
 
+/*
+ Provides functions for talking to the TheyForForYou api.
+ Caches calls for one hour. Depends on the md5 hash function.
+*/
+
 // Load the MPs XML and use it to generate a sorted list of MPs.
 function getMpsList($api_key) {
 	$xml = getCachedApiCall(getMpsListApiUrl($api_key));
@@ -47,7 +52,7 @@ function getPersonsActivityApiUrl($person_id, $api_key) {
 // Return API XML for a given url from a local file cache if possible;
 // make a direct call of no cached copy is available
 function getCachedApiCall($api_url) {
-	$cache_ttl_in_seconds = 600;	// Cache API calls for 10 minutes
+	$cache_ttl_in_seconds = 3600;	// Cache API calls for 1 hour
 	$cached_file_name = getCacheFileName($api_url);
 	
 	if (file_exists($cached_file_name)) { 
