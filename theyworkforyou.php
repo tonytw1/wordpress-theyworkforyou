@@ -71,7 +71,7 @@ function twfy_recent_activity_widget_options_control() {
 	
 	if (!$api_key) {
 		?>
-		<p>Sorry, no API key defined. Please add you API key to the settings page.</p>
+		<p>Sorry, no API key detected. Please add a TheyWorkForYou API key to the Settings / TheyWorkForYou panel.</p>
 		<?php
 		return;
 	}	
@@ -147,10 +147,7 @@ function twfy_recent_activity_widget_options_control() {
 	               	<label for="twfy_link_no"><input type="radio" id="twfy_link_no" name="twfy_link" value="0" <?php if ($twfy_options['link']==0){echo 'checked="checked" ';} ?>/> No</label>
 	           	</p>
 	      	</fieldset>
-	      		       
-			<p class="submit">  
-				<input type="submit" name="Submit" value="<?php _e('Update Options') ?>" />
-			</p>  
+	      		      		
 		</form>
 	</div>
 	<?php
@@ -192,7 +189,7 @@ function twfy_recent_activity_widget_contents(){
 	
 	$twfy_settings = get_option('twfy_settings');	
 	if ($twfy_settings['api_key'] == FALSE) {
-		echo "<p>Sorry, no API key defined. Please add you API key to the settings page.</p>";
+		echo "<p>Sorry, no API key detected. Please add a TheyWorkForYou API key to the Settings / TheyWorkForYou panel.</p>";
 		return;
 	}
     $api_key = $twfy_settings['api_key'];    	
@@ -200,6 +197,11 @@ function twfy_recent_activity_widget_contents(){
 	$twfy_options = get_option('twfy_recent_activity_widget');
     if ($twfy_options['person_id'] !== FALSE){ // Not if the ID isn't set.
     	$xml = getActivityXmlForPerson($twfy_options['person_id'], $api_key);
+    	
+    	if (!$xml || !$xml->rows->match) {
+    		echo "<p>No results found.</p>";
+    		return;
+    	}
     	
         echo "<ul>\n";
         $i = 0; //counter for number of meetings
