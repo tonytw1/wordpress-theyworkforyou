@@ -14,7 +14,7 @@
     You should have received a copy of the Affero General Public License
     along with this program; if not, see http://www.affero.org/oagpl.html
 */
-?>
+
 
 // Load the MPs XML and use it to generate a sorted list of MPs.
 function getMpsList($api_key) {
