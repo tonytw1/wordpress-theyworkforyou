@@ -21,6 +21,18 @@
  Caches calls for one hour. Depends on the md5 hash function.
 */
 
+
+// A valid TWfY API key is a 24 character sequence of upper and lowercase letters only.
+function validateApiKeyFormat($api_key) {
+	if ($api_key) {
+		if (preg_match("/^[a-z|A-Z]{24}$/", $api_key)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
 // Load the MPs XML and use it to generate a sorted list of MPs.
 function getMpsList($api_key) {
 	$xml = getCachedApiCall(getMpsListApiUrl($api_key));

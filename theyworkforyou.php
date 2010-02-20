@@ -3,8 +3,8 @@
 Plugin Name: TheyWorkForYou for Wordpress
 Plugin URI: http://philipjohn.co.uk/category/plugins/theyworkforyou/
 Description: Provides tools for bloggers based on mySociety's TheyWorkForYou.com
-Author: Philip John
-Version: 0.1b
+Author: Philip John, Tony McCrae
+Version: 0.1c
 Author URI: http://philipjohn.co.uk
 
 Future features list;
@@ -34,12 +34,23 @@ include 'twfy_api.php';
 function twfy_settings() {
 	// The form has been submitted, so do the dirty work
 	if ($_POST['twfy_hidden'] == "Y"){
-		$twfy_api_key = trim(htmlentities($_POST['twfy_api_key']));		
-        $twfy_settings = array(
-     	  	'api_key' => $twfy_api_key           
-        );
-		update_option('twfy_settings', $twfy_settings);        
-		echo '<div class="updated"><p><strong>'. __('Options saved.' ) .'</strong></p></div>';
+		$twfy_api_key = trim(htmlentities($_POST['twfy_api_key']));
+		
+		if ($twfy_api_key == '' || validateApiKeyFormat($twfy_api_key)) {	
+	        $twfy_settings = array(
+    	 	  	'api_key' => $twfy_api_key           
+    	    );
+			update_option('twfy_settings', $twfy_settings);        
+			echo '<div class="updated"><p><strong>'. __('Options saved.' ) .'</strong></p></div>';
+			
+		} else {
+			?>
+			<div class="error">
+			<p>The API key you have entered does not appear to be in the correct format; no changes have been made 
+			<p>(expected a key 24 characters long, containing letters only).</p>
+			</div>
+			<?php
+		}
 	}
 	
 	$twfy_settings = get_option('twfy_settings');
@@ -50,7 +61,7 @@ function twfy_settings() {
 			<input type="hidden" name="twfy_hidden" value="Y">
 			
            	<p>To use this plugin, you will need to obtain an <a href="http://www.theyworkforyou.com/api/">API key</a> from TheyWorkForYou.</p>
-			<label for="twfy_api_key">TheyWorkForYou API Key: </label>
+			<label for="twfy_api_key">TheyWorkForYou API key: </label>
            	<input type="text" id="twfy_title" size="30" name="twfy_api_key" value="<?php echo stripslashes($twfy_settings['api_key']);?>" />
            	
 			<p class="submit">  
