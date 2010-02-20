@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="twrc-membership" default="install" basedir="../">
+		
+	<property file="build/build.properties" />
+	
+	<target name="install">
+		
+		<echo message="Copying htdocs to server" />		
+		<copy todir="${install.dir}/">
+			<fileset dir="">
+			    <include name="*.php" />
+			 </fileset> 
+		</copy>				
+	</target>
+	
+</project>
