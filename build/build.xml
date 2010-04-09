@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="twrc-membership" default="install" basedir="../">
+<project name="wordpress-twfy" default="install" basedir="../">
 		
 	<property file="build/build.properties" />
 	
